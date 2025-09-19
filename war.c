@@ -95,4 +95,20 @@ int main() {
 // Retorna 1 (verdadeiro) se a missão foi cumprida, e 0 (falso) caso contrário.
 
 // limparBufferEntrada():
+
+/*
+Programa: Cadastro de Territórios
+Descrição:
+  Este programa cria uma base de dados simples de territórios.
+  Cada território tem nome, cor do exército e quantidade de tropas.
+  O usuário pode cadastrar 5 territórios e visualizar os dados logo após o preenchimento.
+
+Requisitos atendidos:
+  - Struct Territorio com os campos: nome, cor e tropas
+  - Cadastro de 5 territórios
+  - Exibição dos dados cadastrados
+  - Entrada clara (mensagens para o usuário)
+  - Saída formatada
+  - Comentários explicativos para facilitar manutenção
+*/
 // Função utilitária para limpar o buffer de entrada do teclado (stdin), evitando problemas com leituras consecutivas de scanf e getchar.
