@@ -1,0 +1,151 @@
+/*
+Programa: WAR Estruturado - Simulação de Ataques
+Descrição:
+  Este programa cria uma base de dados dinâmica de territórios
+  para simular batalhas no estilo War.
+  - O usuário informa quantos territórios deseja cadastrar
+  - Cada território possui: nome, cor do exército e quantidade de tropas
+  - O usuário pode selecionar territórios para realizar ataques
+  - O ataque é decidido com base em rolagem de dados aleatórios (1 a 6)
+  - Se o atacante vencer, o território defensor muda de dono
+  - Toda memória alocada é liberada ao final do programa
+
+Requisitos atendidos:
+  - Alocação dinâmica de territórios com malloc
+  - Função atacar() manipulando structs via ponteiros
+  - Atualização dos territórios após ataques
+  - Interface amigável e clara
+  - Modularização com funções distintas
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+// Definição da struct Territorio
+typedef struct {
+    char nome[30];   // Nome do território
+    char cor[10];    // Cor do exército
+    int tropas;      // Quantidade de tropas
+} Territorio;
+
+// Protótipos das funções
+Territorio* cadastrarTerritorios(int n);
+void exibirTerritorios(Territorio* mapa, int n);
+void atacar(Territorio* atacante, Territorio* defensor);
+void liberarMemoria(Territorio* mapa);
+
+int main() {
+    srand(time(NULL)); // inicializa gerador de números aleatórios
+
+    int n;
+    printf("Digite o número de territórios a cadastrar: ");
+    scanf("%d", &n);
+
+    // Aloca dinamicamente o vetor de territórios
+    Territorio* mapa = cadastrarTerritorios(n);
+
+    int opcao;
+    do {
+        printf("\n=== MENU WAR ===\n");
+        printf("1 - Exibir territórios\n");
+        printf("2 - Realizar ataque\n");
+        printf("0 - Sair\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                exibirTerritorios(mapa, n);
+                break;
+            case 2: {
+                int iAtk, iDef;
+                exibirTerritorios(mapa, n);
+                printf("\nEscolha o índice do território ATACANTE: ");
+                scanf("%d", &iAtk);
+                printf("Escolha o índice do território DEFENSOR: ");
+                scanf("%d", &iDef);
+
+                if (iAtk >= 0 && iAtk < n && iDef >= 0 && iDef < n) {
+                    if (strcmp(mapa[iAtk].cor, mapa[iDef].cor) == 0) {
+                        printf("\n[ERRO] Não é possível atacar territórios da mesma cor!\n");
+                    } else {
+                        atacar(&mapa[iAtk], &mapa[iDef]);
+                    }
+                } else {
+                    printf("\n[ERRO] Índices inválidos!\n");
+                }
+                break;
+            }
+            case 0:
+                printf("\nEncerrando o programa...\n");
+                break;
+            default:
+                printf("\n[ERRO] Opção inválida!\n");
+        }
+    } while (opcao != 0);
+
+    liberarMemoria(mapa);
+    return 0;
+}
+
+// Função para cadastrar territórios dinamicamente
+Territorio* cadastrarTerritorios(int n) {
+    Territorio* mapa = (Territorio*) malloc(n * sizeof(Territorio));
+    if (mapa == NULL) {
+        printf("Erro ao alocar memória!\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < n; i++) {
+        printf("\nCadastro do território %d:\n", i);
+        printf("Nome: ");
+        scanf(" %29[^\n]", mapa[i].nome);
+        printf("Cor do exército: ");
+        scanf(" %9s", mapa[i].cor);
+        printf("Quantidade de tropas: ");
+        scanf("%d", &mapa[i].tropas);
+    }
+
+    return mapa;
+}
+
+// Função para exibir os territórios
+void exibirTerritorios(Territorio* mapa, int n) {
+    printf("\n=== Territórios Cadastrados ===\n");
+    for (int i = 0; i < n; i++) {
+        printf("[%d] Nome: %s | Cor: %s | Tropas: %d\n",
+               i, mapa[i].nome, mapa[i].cor, mapa[i].tropas);
+    }
+}
+
+// Função que simula um ataque
+void atacar(Territorio* atacante, Territorio* defensor) {
+    if (atacante->tropas < 1) {
+        printf("\n[ERRO] O atacante não possui tropas suficientes!\n");
+        return;
+    }
+
+    int dadoAtk = (rand() % 6) + 1; // 1 a 6
+    int dadoDef = (rand() % 6) + 1; // 1 a 6
+
+    printf("\n=== Batalha ===\n");
+    printf("Atacante (%s) rolou: %d\n", atacante->nome, dadoAtk);
+    printf("Defensor (%s) rolou: %d\n", defensor->nome, dadoDef);
+
+    if (dadoAtk > dadoDef) {
+        printf("\nO atacante venceu a batalha!\n");
+        strcpy(defensor->cor, atacante->cor); // muda o dono
+        defensor->tropas = atacante->tropas / 2; // metade das tropas do atacante ocupam
+        atacante->tropas -= defensor->tropas;   // reduz tropas do atacante
+    } else {
+        printf("\nO defensor resistiu ao ataque!\n");
+        atacante->tropas -= 1; // atacante perde uma tropa
+    }
+}
+
+// Função para liberar memória
+void liberarMemoria(Territorio* mapa) {
+    free(mapa);
+}
